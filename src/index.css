@@ -1,8 +1,15 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
-body{
-  background: #f2f2f2;
+body {
+  /* background: #f2f2f2; */
+  background-image: url("");
   font-family: 'Open Sans', sans-serif;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+tr {
+  border-bottom:1pt solid black;
 }
 
 .search {
@@ -19,11 +26,11 @@ body{
   height: 20px;
   border-radius: 5px 0 0 5px;
   outline: none;
-  color: #9DBFAF;
+  color: rgb(0, 0, 0);
 }
 
 .searchTerm:focus{
-  color: #00B4CC;
+  color: rgb(0, 0, 0);
 }
 
 .searchButton {
@@ -37,3 +44,17 @@ body{
   cursor: pointer;
   font-size: 20px;
 }
+
+p {
+  margin: 20px;
+  padding-bottom: 20px; 
+}
+
+/* #title p { 
+  line-height: 20px;
+  margin: 20px;
+  padding-bottom: 20px; 
+  text-align: justify;
+  width: 140px;
+  color: red; 
+} */

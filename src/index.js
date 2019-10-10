@@ -38,15 +38,15 @@ class MovieView extends React.Component {
                 <div>
                     <table id='movieresults'>
                         <tbody>
-                            <tr>{this.renderTableHeader()}</tr>
-                            {this.renderTableData()}
+
+                            {/* <tr>{this.renderTableHeader()}</tr> */}
+                            {this.renderTableDataCards()}
                         </tbody>
                     </table>
                 </div>
                 <div>
                     <table id='watchlist'>
                         <tbody>
-                            <tr>{this.renderTableHeader()}</tr>
                             {this.renderWatchListTableData()}
                         </tbody>
                     </table>
@@ -57,47 +57,49 @@ class MovieView extends React.Component {
 
     componentDidMount() {
         fetch("https://api.themoviedb.org/3/configuration?api_key=" + api_key)
-          .then(res => res.json())
-          .then(
-            (result) => {
-              this.setState({
-                // isLoaded: true,
-                config: result
-              });
-            },
-            // Note: it's important to handle errors here
-            // instead of a catch() block so that we don't swallow
-            // exceptions from actual bugs in components.
-            (error) => {
-              this.setState({
-                // isLoaded: true,
-                error
-              });
-            }
-          )
-      }
-
-    renderTableHeader() {
-        if (this.state.isLoaded) {
-            let header = ["ID", "TITLE", "RELEASE_DATE", "FAVOURITE", "WATCHLIST"];
-            return header.map((key, index) => {
-                return <th key={index}>{key.toUpperCase()}</th>
-            });
-        }
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        // isLoaded: true,
+                        config: result
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        // isLoaded: true,
+                        error
+                    });
+                }
+            )
     }
 
-    renderTableData() {
+    renderTableDataCards() {
         if (this.state.items.length > 0) {
             return this.state.items.map((items, index) => {
-                const { id, title, release_date, backdrop_path } = items
+                const { poster_path, title, overview, release_date, vote_average } = items
                 return (
-                    <tr key={id}>
-                        <td>{id}</td>
-                        <td>{title}</td>
-                        <td>{release_date}</td>
-                        <td>{backdrop_path}</td>
-                        <td>{this.renderFavouriteButton(index)}</td>
-                        <td>{this.renderAddToWatchButton(index)}</td>
+                    <tr>
+                        <td>
+                            <img src={this.createImageUrl(poster_path)} alt="" />
+                        </td>
+                        <td>
+                            <div id="title">
+                                <p>{title}</p>
+                            </div>
+                            <div>
+                                <p>{overview}</p>
+                            </div>
+                            <div>
+                                <p>{release_date}</p>
+                            </div>
+                            <div>
+                                <p>Rating: {vote_average}</p>
+                            </div>
+                        </td>
                     </tr>
                 )
             });
@@ -170,6 +172,13 @@ class MovieView extends React.Component {
         this.setState({
             watchList: watchList,
         });
+    }
+
+    createImageUrl(filePath) {
+        let baseUrl = this.state.config.images.base_url;
+        let imageSize = this.state.config.images.poster_sizes[2];
+        let completeUrl = baseUrl + imageSize + filePath;
+        return completeUrl;
     }
 
     search = () => {
