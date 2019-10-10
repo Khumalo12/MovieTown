@@ -42,8 +42,7 @@ class MovieView extends React.Component {
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav mr-auto">
                             <li className="nav-item active">
-                                <a className="nav-link" href="/watchlist">WatchList <span className="sr-only">(current)</span></a>
-                            </li>
+                                <button onClick={this.watchList} className="btn btn-outline-success my-2 my-sm-0">WatchList</button>                            </li>
                         </ul>
                         <div className="search navbar-nav ml-auto">
                             <input type="text" name="searchMovie" placeholder="Search a movie" required="required" onKeyPress={this.keyPressed} className="form-control mr-sm-2" value={this.state.searchValue} onChange={this.handleChange.bind(this)} />
@@ -65,30 +64,39 @@ class MovieView extends React.Component {
     }
 
     componentDidMount() {
-        fetch("https://api.themoviedb.org/3/configuration?api_key=" + api_key)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.setState({
-                        // isLoaded: true,
-                        config: result
-                    });
-                },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
-                (error) => {
-                    this.setState({
-                        // isLoaded: true,
-                        error
-                    });
-                }
-            )
+        this.getConfiguration();
+        this.getPopularMovies();
     }
 
     renderTableDataCards() {
         if (this.state.items.length > 0) {
             return this.state.items.map((items, index) => {
+                const { id, poster_path, title, overview, vote_average } = items
+                return (
+                    <tr key={id}>
+                        <td>
+                            <img src={this.createImageUrl(poster_path)} alt="movie poster" />
+                        </td>
+                        <td>
+                            <div id="title">
+                                <p>{title}</p>
+                            </div>
+                            <div>
+                                <p>{overview}</p>
+                            </div>
+                            <div>
+                                <p>Rating: {vote_average}</p> {this.renderFavouriteButton(index)} {this.renderAddToWatchButton(index)}
+                            </div>
+                        </td>
+                    </tr>
+                )
+            });
+        }
+    }
+
+    watchList() {
+        if (this.state.watchList.length > 0) {
+            return this.state.watchList.map((items, index) => {
                 const { id, poster_path, title, overview, vote_average } = items
                 return (
                     <tr key={id}>
@@ -164,7 +172,7 @@ class MovieView extends React.Component {
         });
     }
 
-    toggleWatchListState(){
+    toggleWatchListState() {
         this.setState({
             isWatchList: true,
         });
@@ -181,6 +189,50 @@ class MovieView extends React.Component {
         if (event.key === "Enter") {
             this.search();
         }
+    }
+
+    getConfiguration() {
+        fetch("https://api.themoviedb.org/3/configuration?api_key=" + api_key)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        // isLoaded: true,
+                        config: result
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        // isLoaded: true,
+                        error
+                    });
+                }
+            )
+    }
+
+    getPopularMovies() {
+        fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + api_key + "&language=en-US&page=1")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        isLoaded: true,
+                        items: result.results,
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        // isLoaded: true,
+                        error
+                    });
+                }
+            )
     }
 
     search = () => {
