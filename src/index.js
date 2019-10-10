@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import '../node_modules/font-awesome/css/font-awesome.min.css';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './ajaxservice';
 
 const api_key = "1c4084dde4ea7820d6787ebf2c0846e5";
@@ -21,6 +22,7 @@ class MovieView extends React.Component {
         super(props);
         this.state = {
             searchValue: '',
+            isWatchList: false,
             isLoaded: false,
             items: [],
             watchList: [],
@@ -31,25 +33,32 @@ class MovieView extends React.Component {
     render() {
         return (
             <div>
-                <div className="search">
-                    <input type="text" name="searchMovie" placeholder="Search a movie" required="required" class="searchTerm" value={this.state.searchValue} onChange={this.handleChange.bind(this)} />
-                    <button onClick={this.search} type="submit" class="searchButton"><i class="fa fa-search"></i></button>
-                </div>
-                <div>
-                    <table id='movieresults'>
-                        <tbody>
+                <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+                    <a className="navbar-brand" href="/" >MovieTown</a>
+                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
 
-                            {/* <tr>{this.renderTableHeader()}</tr> */}
-                            {this.renderTableDataCards()}
-                        </tbody>
-                    </table>
-                </div>
-                <div>
-                    <table id='watchlist'>
-                        <tbody>
-                            {this.renderWatchListTableData()}
-                        </tbody>
-                    </table>
+                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul className="navbar-nav mr-auto">
+                            <li className="nav-item active">
+                                <a className="nav-link" href="/watchlist">WatchList <span className="sr-only">(current)</span></a>
+                            </li>
+                        </ul>
+                        <div className="search navbar-nav ml-auto">
+                            <input type="text" name="searchMovie" placeholder="Search a movie" required="required" onKeyPress={this.keyPressed} className="form-control mr-sm-2" value={this.state.searchValue} onChange={this.handleChange.bind(this)} />
+                            <button onClick={this.search} type="submit" className="btn btn-outline-success my-2 my-sm-0"><i className="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </nav>
+                <div className="container">
+                    <div>
+                        <table id='movieresults'>
+                            <tbody>
+                                {this.renderTableDataCards()}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         );
@@ -80,11 +89,11 @@ class MovieView extends React.Component {
     renderTableDataCards() {
         if (this.state.items.length > 0) {
             return this.state.items.map((items, index) => {
-                const { poster_path, title, overview, release_date, vote_average } = items
+                const { id, poster_path, title, overview, vote_average } = items
                 return (
-                    <tr>
+                    <tr key={id}>
                         <td>
-                            <img src={this.createImageUrl(poster_path)} alt="" />
+                            <img src={this.createImageUrl(poster_path)} alt="movie poster" />
                         </td>
                         <td>
                             <div id="title">
@@ -94,28 +103,9 @@ class MovieView extends React.Component {
                                 <p>{overview}</p>
                             </div>
                             <div>
-                                <p>{release_date}</p>
-                            </div>
-                            <div>
-                                <p>Rating: {vote_average}</p>
+                                <p>Rating: {vote_average}</p> {this.renderFavouriteButton(index)} {this.renderAddToWatchButton(index)}
                             </div>
                         </td>
-                    </tr>
-                )
-            });
-        }
-    }
-
-    renderWatchListTableData() {
-        if (this.state.watchList.length > 0) {
-            return this.state.watchList.map((items, index) => {
-                const { id, title, release_date } = items
-                return (
-                    <tr key={id}>
-                        <td>{id}</td>
-                        <td>{title}</td>
-                        <td>{release_date}</td>
-                        <td>{this.renderDeleteToWatchButton(index)}</td>
                     </tr>
                 )
             });
@@ -125,7 +115,7 @@ class MovieView extends React.Component {
     renderFavouriteButton(i) {
         return (
             <FavouriteButton
-                value={this.state.items[i].isFavourite ? "true" : "false"}
+                value={this.state.items[i].isFavourite}
                 onClick={() => this.handleFavourite(i)} />
         );
     }
@@ -174,11 +164,23 @@ class MovieView extends React.Component {
         });
     }
 
+    toggleWatchListState(){
+        this.setState({
+            isWatchList: true,
+        });
+    }
+
     createImageUrl(filePath) {
         let baseUrl = this.state.config.images.base_url;
         let imageSize = this.state.config.images.poster_sizes[2];
         let completeUrl = baseUrl + imageSize + filePath;
         return completeUrl;
+    }
+
+    keyPressed(event) {
+        if (event.key === "Enter") {
+            this.search();
+        }
     }
 
     search = () => {
@@ -214,12 +216,24 @@ class MovieView extends React.Component {
 }
 
 function FavouriteButton(props) {
-    return (
-        <button
-            onClick={props.onClick}>
-            {(props.value === "true") ? 'true' : 'false'}
-        </button>
-    );
+    if (props.value) {
+        return (
+            <button
+                className="favourite"
+                onClick={props.onClick}>
+                <i className="fa fa-star"></i>
+            </button>
+        );
+    }
+    else {
+        return (
+            <button
+                className="favourite"
+                onClick={props.onClick}>
+                <i className="fa fa-star-o"></i>
+            </button>
+        );
+    }
 }
 
 function AddToWatchButton(props) {
@@ -239,17 +253,6 @@ function DeleteToWatchButton(props) {
         </button>
     );
 }
-
-// class MovieResults extends React.Component {
-//     render() {
-//         return (
-//             <div>
-//                 <input type="text" name="searchMovie" />
-//                 <button onClick={this.props.searchMovie}>Search</button>
-//             </div>
-//         );
-//     }
-// }
 
 // ========================================
 
