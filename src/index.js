@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import '../node_modules/font-awesome/css/font-awesome.min.css';
+import './ajaxservice';
+
+const api_key = "1c4084dde4ea7820d6787ebf2c0846e5";
 
 class MovieTown extends React.Component {
     render() {
@@ -21,6 +24,7 @@ class MovieView extends React.Component {
             isLoaded: false,
             items: [],
             watchList: [],
+            config: [],
         }
     }
 
@@ -50,6 +54,28 @@ class MovieView extends React.Component {
             </div>
         );
     }
+
+    componentDidMount() {
+        fetch("https://api.themoviedb.org/3/configuration?api_key=" + api_key)
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({
+                // isLoaded: true,
+                config: result
+              });
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              this.setState({
+                // isLoaded: true,
+                error
+              });
+            }
+          )
+      }
 
     renderTableHeader() {
         if (this.state.isLoaded) {
@@ -153,7 +179,7 @@ class MovieView extends React.Component {
     }
 
     searchMovie = () => {
-        fetch("https://api.themoviedb.org/3/search/movie?api_key=1c4084dde4ea7820d6787ebf2c0846e5&query=" + this.state.searchValue)
+        fetch("https://api.themoviedb.org/3/search/movie?api_key=" + api_key + "&query=" + this.state.searchValue)
             .then(res => res.json())
             .then(
                 (result) => {
