@@ -1,12 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ModalVideo from 'react-modal-video';
 import './index.css';
 import '../node_modules/font-awesome/css/font-awesome.min.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import './ajaxservice';
+import '../node_modules/react-modal-video/css/modal-video.min.css';
+
 
 const api_key = "1c4084dde4ea7820d6787ebf2c0846e5";
 const base_url = "https://api.themoviedb.org/3/";
+// const youtube_base_url = "https://www.youtube.com/watch?v=";
 
 class MovieTown extends React.Component {
     render() {
@@ -24,12 +27,20 @@ class MovieView extends React.Component {
         this.state = {
             searchValue: '',
             isWatchList: false,
-            isLoaded: false,
+            searchpages: 0,
+            currentsearchpage: 0,
+            youtubekey: "",
+            isOpen: false,
             genres: [],
             items: [],
             watchList: [],
             config: [],
         }
+        this.openModal = this.openModal.bind(this)
+    }
+
+    openModal() {
+        this.setState({ isOpen: true })
     }
 
     render() {
@@ -61,6 +72,9 @@ class MovieView extends React.Component {
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div>
+                    <ModalVideo channel='youtube' isOpen={this.state.isOpen} videoId={this.state.youtubekey} onClose={() => this.setState({ isOpen: false })} />
                 </div>
             </div>
         );
@@ -95,26 +109,20 @@ class MovieView extends React.Component {
                                 <p>Rating: {vote_average}</p>
                             </div>
                             <div>
-                                {this.renderFavouriteButton(index)} {this.renderTrailerButton(index)} {this.renderAddToWatchButton(index)}
+                                {this.renderFavouriteButton(index)} {this.renderTrailerButton(id)} {this.renderAddToWatchButton(index)}
                             </div>
                         </td>
                     </tr>
                 )
             });
         }
-        else{
+        else {
             return (
-            <div className = "NotFound">
-                <p>Oops that movie does not exist</p>
-            </div>
+                <div className="NotFound">
+                    <p>Oops that movie does not exist</p>
+                </div>
             )
         }
-    }
-
-    watchList = () => {
-        this.setState({
-            items: this.state.watchList,
-        })
     }
 
     renderFavouriteButton(i) {
@@ -128,8 +136,7 @@ class MovieView extends React.Component {
     renderTrailerButton(i) {
         return (
             <TrailerButton
-                value={this.state.items[i].isFavourite}
-                onClick={() => this.handleFavourite(i)} />
+                onClick={() => this.handleTrailer(i)} />
         );
     }
 
@@ -185,10 +192,9 @@ class MovieView extends React.Component {
         });
     }
 
-    toggleWatchListState() {
-        this.setState({
-            isWatchList: true,
-        });
+    handleTrailer(id) {
+        this.getTrailerKey(id);
+        this.openModal();
     }
 
     createImageUrl(filePath) {
@@ -196,12 +202,6 @@ class MovieView extends React.Component {
         let imageSize = this.state.config.images.poster_sizes[2];
         let completeUrl = baseUrl + imageSize + filePath;
         return completeUrl;
-    }
-
-    keyPressed = (event) => {
-        if (event.key === "Enter") {
-            this.search();
-        }
     }
 
     getConfiguration() {
@@ -238,22 +238,51 @@ class MovieView extends React.Component {
             )
     }
 
+    getTrailerKey = (id) => {
+        fetch(base_url + "movie/" + id + "/videos?api_key=" + api_key + "&language=en-US&page=1")
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    for (let index = 0; index < result.results.length; index++) {
+                        if (result.results[index].type === "Trailer") {
+                            this.setState({
+                                youtubekey: result.results[index].key,
+                            })
+                            break;
+                        }
+                    }
+                },
+                (error) => {
+                    this.setState({
+                        error
+                    });
+                }
+            )
+    }
+
+    watchList = () => {
+        this.setState({
+            items: this.state.watchList,
+        })
+    }
+
+    keyPressed = (event) => {
+        if (event.key === "Enter") {
+            this.search();
+        }
+    }
+
     getPopularMovies = () => {
         fetch(base_url + "movie/popular?api_key=" + api_key + "&language=en-US&page=1")
             .then(res => res.json())
             .then(
                 (result) => {
                     this.setState({
-                        //isLoaded: true,
                         items: result.results,
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
-                        // isLoaded: true,
                         error
                     });
                 }
@@ -271,20 +300,15 @@ class MovieView extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    console.log(result);
                     let data = result.results.map(obj => ({ ...obj, isFavourite: false }))
                     this.setState({
-                        isLoaded: true,
-                        items: data
+                        items: data,
+                        searchpages: result.total_pages,
+                        currentsearchpage: result.page,
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
-                    console.log(error);
                     this.setState({
-                        isLoaded: true,
                         error
                     });
                 }
@@ -293,8 +317,7 @@ class MovieView extends React.Component {
 }
 
 function FavouriteButton(props) {
-    if(props.value)
-    {
+    if (props.value) {
         return (
             <button className="FavouriteButton btn"
                 onClick={props.onClick}>
@@ -302,8 +325,7 @@ function FavouriteButton(props) {
             </button>
         );
     }
-    else
-    {
+    else {
         return (
             <button className="NegativeFavouriteButton btn"
                 onClick={props.onClick}>
@@ -311,7 +333,7 @@ function FavouriteButton(props) {
             </button>
         );
     }
-    
+
 }
 
 function TrailerButton(props) {

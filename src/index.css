@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+@import './../node_modules/react-modal-video/scss/modal-video.scss';
 
 body {
   /* background: #f2f2f2; */
