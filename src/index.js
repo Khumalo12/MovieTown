@@ -6,6 +6,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './ajaxservice';
 
 const api_key = "1c4084dde4ea7820d6787ebf2c0846e5";
+const base_url = "https://api.themoviedb.org/3/";
 
 class MovieTown extends React.Component {
     render() {
@@ -35,8 +36,8 @@ class MovieView extends React.Component {
         return (
             <div className="container">
                 <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <a className="navbar-brand" href="/" ><img src={"https://cdn130.picsart.com/288739624061211.png?c256x256"} width="120" alt="movie poster" />
-                        MOVIETOWN</a>
+                    <button className="navbar-brand" onClick={this.getPopularMovies}><img src={"https://cdn130.picsart.com/288739624061211.png?c256x256"} width="120" alt="movie poster" />
+                        MOVIETOWN</button>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
@@ -48,7 +49,7 @@ class MovieView extends React.Component {
                         </div>
                         <ul className="navbar-nav ml-auto">
                             <li className="nav-item active">
-                                <button onClick={this.watchList} className="btn my-2 my-sm-0">WatchList</button>                            </li>
+                                <button onClick={this.watchList} className=" WatchListViewButton btn my-2 my-sm-0">WatchList</button>                            </li>
                         </ul>
                     </div>
                 </nav>
@@ -87,8 +88,8 @@ class MovieView extends React.Component {
                             <div>
                                 <p>{overview}</p>
                             </div>
-                            <div id="genre">
-                                <p>Genre:</p><p>{this.renderGenre(genre_ids)}</p>
+                            <div>
+                                <p className="genre">Genre:</p><p className="genrenames">{this.renderGenre(genre_ids)}</p>
                             </div>
                             <div>
                                 <p>Rating: {vote_average}</p>
@@ -190,28 +191,23 @@ class MovieView extends React.Component {
         return completeUrl;
     }
 
-    keyPressed(event) {
+    keyPressed = (event) => {
         if (event.key === "Enter") {
             this.search();
         }
     }
 
     getConfiguration() {
-        fetch("https://api.themoviedb.org/3/configuration?api_key=" + api_key)
+        fetch(base_url + "configuration?api_key=" + api_key)
             .then(res => res.json())
             .then(
                 (result) => {
                     this.setState({
-                        // isLoaded: true,
                         config: result
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
-                        // isLoaded: true,
                         error
                     });
                 }
@@ -219,34 +215,29 @@ class MovieView extends React.Component {
     }
 
     getGenre() {
-        fetch("https://api.themoviedb.org/3/genre/movie/list?api_key=" + api_key)
+        fetch(base_url + "genre/movie/list?api_key=" + api_key)
             .then(res => res.json())
             .then(
                 (result) => {
                     this.setState({
-                        // isLoaded: true,
                         genres: result
                     });
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     this.setState({
-                        // isLoaded: true,
                         error
                     });
                 }
             )
     }
 
-    getPopularMovies() {
-        fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + api_key + "&language=en-US&page=1")
+    getPopularMovies = () => {
+        fetch(base_url + "movie/popular?api_key=" + api_key + "&language=en-US&page=1")
             .then(res => res.json())
             .then(
                 (result) => {
                     this.setState({
-                        isLoaded: true,
+                        //isLoaded: true,
                         items: result.results,
                     });
                 },
@@ -269,7 +260,7 @@ class MovieView extends React.Component {
     }
 
     searchMovie = () => {
-        fetch("https://api.themoviedb.org/3/search/movie?api_key=" + api_key + "&query=" + this.state.searchValue)
+        fetch(base_url + "search/movie?api_key=" + api_key + "&query=" + this.state.searchValue)
             .then(res => res.json())
             .then(
                 (result) => {
