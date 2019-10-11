@@ -2,8 +2,10 @@
 
 body {
   /* background: #f2f2f2; */
-  background-image: url("./img/6354.jpg");
-  background-repeat: no-repeat;
+  background: url("./img/image.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover;
   font-family: 'Open Sans', sans-serif;
   margin-left: 20%;
@@ -11,22 +13,33 @@ body {
 }
 
 table {
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(0, 0, 0);
 }
 
 tr {
-  border-bottom:1pt solid black;
-}
-
-.search {
-  width: 25%;
-  position: relative;
-  display: flex;
+  border-top:4px solid rgb(255, 255, 255);
+  border-bottom:4px solid rgb(255, 255, 255);
 }
 
 p {
   margin: 10px;
   padding-bottom: 0px; 
+  color: rgb(255, 255, 255); 
+}
+
+.navbar {
+  padding: 1.5rem 2rem !important;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 34px !important;
+}
+
+.search {
+  width: 75%;
+  position: relative;
+  display: flex;
 }
 
 .favourite {
@@ -48,11 +61,89 @@ p {
   outline: none;
 }
 
-/* #title p { 
-  line-height: 20px;
-  margin: 20px;
-  padding-bottom: 20px; 
-  text-align: justify;
-  width: 140px;
-  color: red; 
-} */
+#title p { 
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 22px;
+}
+
+#genre p { 
+  display:inline;
+  background-color: rgb(73, 72, 72);
+}
+
+.FavouriteButton {
+	background-color:#ffdd00 !important;
+	border-radius:6px;
+	border:1px solid #ffdd00 !important;
+	display:inline-block;
+	cursor:pointer;
+	color:#333333;
+	font-family:Arial;
+	font-size:15px !important;
+	font-weight:bold !important;
+	padding:4px 20px;
+	text-decoration:none;
+}
+
+.FavouriteButton:hover {
+	background:linear-gradient(to bottom, #ffdd00 5%, #ffdd00 100%);
+	background-color:#ffdd00;
+}
+
+.FavouriteButton:active {
+	position:relative;
+	top:1px;
+}
+
+.TrailerButton {
+	background-color:#000000 !important;
+	border-radius:6px;
+	border:1px solid #ffffff !important;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff !important;
+	font-family:Arial;
+	font-size:15px !important;
+	font-weight:bold !important;
+	padding:4px 20px;
+	text-decoration:none;
+  text-shadow:0px 1px 0px #000000;
+}
+
+.TrailerButton:hover {
+	background:linear-gradient(to bottom, #000000 5%, #000000 100%);
+	background-color:#ffffff;
+}
+
+.TrailerButton:active {
+	position:relative;
+	top:1px;
+}
+
+.WatchListButton {
+	background-color:#ffffff !important;
+	border-radius:6px;
+	border:1px solid #dcdcdc !important;
+	display:inline-block;
+	cursor:pointer;
+	color:#666666;
+	font-family:Arial;
+	font-size:15px !important;
+	font-weight:bold !important;
+	padding:6px 20px;
+	text-decoration:none;
+  text-shadow:0px 1px 0px #ffffff;
+}
+
+.WatchListButton:hover {
+	background:linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+	background-color:#f6f6f6;
+}
+
+.WatchListButton:active {
+	position:relative;
+	top:1px;
+}
+        
+       

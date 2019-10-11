@@ -24,6 +24,7 @@ class MovieView extends React.Component {
             searchValue: '',
             isWatchList: false,
             isLoaded: false,
+            genres: [],
             items: [],
             watchList: [],
             config: [],
@@ -32,25 +33,26 @@ class MovieView extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="container">
                 <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <a className="navbar-brand" href="/" >MovieTown</a>
+                    <a className="navbar-brand" href="/" ><img src={"https://cdn130.picsart.com/288739624061211.png?c256x256"} width="120" alt="movie poster" />
+                        MOVIETOWN</a>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
 
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav mr-auto">
-                            <li className="nav-item active">
-                                <button onClick={this.watchList} className="btn btn-outline-success my-2 my-sm-0">WatchList</button>                            </li>
-                        </ul>
-                        <div className="search navbar-nav ml-auto">
+                        <div className="search search navbar-nav mr-auto">
                             <input type="text" name="searchMovie" placeholder="Search a movie" required="required" onKeyPress={this.keyPressed} className="form-control mr-sm-2" value={this.state.searchValue} onChange={this.handleChange.bind(this)} />
                             <button onClick={this.search} type="submit" className="btn btn-outline-success my-2 my-sm-0"><i className="fa fa-search"></i></button>
                         </div>
+                        <ul className="navbar-nav ml-auto">
+                            <li className="nav-item active">
+                                <button onClick={this.watchList} className="btn my-2 my-sm-0">WatchList</button>                            </li>
+                        </ul>
                     </div>
                 </nav>
-                <div className="container">
+                <div>
                     <div>
                         <table id='movieresults'>
                             <tbody>
@@ -65,13 +67,14 @@ class MovieView extends React.Component {
 
     componentDidMount() {
         this.getConfiguration();
+        this.getGenre();
         this.getPopularMovies();
     }
 
     renderTableDataCards() {
         if (this.state.items.length > 0) {
             return this.state.items.map((items, index) => {
-                const { id, poster_path, title, overview, vote_average } = items
+                const { id, poster_path, title, overview, vote_average, genre_ids } = items
                 return (
                     <tr key={id}>
                         <td>
@@ -84,8 +87,14 @@ class MovieView extends React.Component {
                             <div>
                                 <p>{overview}</p>
                             </div>
+                            <div id="genre">
+                                <p>Genre:</p><p>{this.renderGenre(genre_ids)}</p>
+                            </div>
                             <div>
-                                <p>Rating: {vote_average}</p> {this.renderFavouriteButton(index)} {this.renderAddToWatchButton(index)}
+                                <p>Rating: {vote_average}</p>
+                            </div>
+                            <div>
+                                {this.renderFavouriteButton(index)} {this.renderTrailerButton(index)} {this.renderAddToWatchButton(index)}
                             </div>
                         </td>
                     </tr>
@@ -94,35 +103,23 @@ class MovieView extends React.Component {
         }
     }
 
-    watchList() {
-        if (this.state.watchList.length > 0) {
-            return this.state.watchList.map((items, index) => {
-                const { id, poster_path, title, overview, vote_average } = items
-                return (
-                    <tr key={id}>
-                        <td>
-                            <img src={this.createImageUrl(poster_path)} alt="movie poster" />
-                        </td>
-                        <td>
-                            <div id="title">
-                                <p>{title}</p>
-                            </div>
-                            <div>
-                                <p>{overview}</p>
-                            </div>
-                            <div>
-                                <p>Rating: {vote_average}</p> {this.renderFavouriteButton(index)} {this.renderAddToWatchButton(index)}
-                            </div>
-                        </td>
-                    </tr>
-                )
-            });
-        }
+    watchList = () => {
+        this.setState({
+            items: this.state.watchList,
+        })
     }
 
     renderFavouriteButton(i) {
         return (
             <FavouriteButton
+                value={this.state.items[i].isFavourite}
+                onClick={() => this.handleFavourite(i)} />
+        );
+    }
+
+    renderTrailerButton(i) {
+        return (
+            <TrailerButton
                 value={this.state.items[i].isFavourite}
                 onClick={() => this.handleFavourite(i)} />
         );
@@ -142,6 +139,14 @@ class MovieView extends React.Component {
                 value={this.state.watchList[i]}
                 onClick={() => this.handleDeleteWatchList(i)} />
         );
+    }
+
+    renderGenre(genre_ids) {
+        let genres = [];
+        genre_ids.forEach(element => {
+            genres.push(this.state.genres.genres.find(({ id }) => id === element).name + "\n");
+        });
+        return genres;
     }
 
     handleChange(event) {
@@ -213,6 +218,28 @@ class MovieView extends React.Component {
             )
     }
 
+    getGenre() {
+        fetch("https://api.themoviedb.org/3/genre/movie/list?api_key=" + api_key)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        // isLoaded: true,
+                        genres: result
+                    });
+                },
+                // Note: it's important to handle errors here
+                // instead of a catch() block so that we don't swallow
+                // exceptions from actual bugs in components.
+                (error) => {
+                    this.setState({
+                        // isLoaded: true,
+                        error
+                    });
+                }
+            )
+    }
+
     getPopularMovies() {
         fetch("https://api.themoviedb.org/3/movie/popular?api_key=" + api_key + "&language=en-US&page=1")
             .then(res => res.json())
@@ -268,31 +295,28 @@ class MovieView extends React.Component {
 }
 
 function FavouriteButton(props) {
-    if (props.value) {
-        return (
-            <button
-                className="favourite"
-                onClick={props.onClick}>
-                <i className="fa fa-star"></i>
-            </button>
-        );
-    }
-    else {
-        return (
-            <button
-                className="favourite"
-                onClick={props.onClick}>
-                <i className="fa fa-star-o"></i>
-            </button>
-        );
-    }
+    return (
+        <button className="FavouriteButton btn"
+            onClick={props.onClick}>
+            {"Favourite"}
+        </button>
+    );
+}
+
+function TrailerButton(props) {
+    return (
+        <button className="TrailerButton btn"
+            onClick={props.onClick}>
+            {"Play Trailer"}
+        </button>
+    );
 }
 
 function AddToWatchButton(props) {
     return (
-        <button
+        <button className="WatchListButton btn"
             onClick={props.onClick}>
-            {"Watch Later"}
+            {"Add to Watch List"}
         </button>
     );
 }
