@@ -102,6 +102,13 @@ class MovieView extends React.Component {
                 )
             });
         }
+        else{
+            return (
+            <div className = "NotFound">
+                <p>Oops that movie does not exist</p>
+            </div>
+            )
+        }
     }
 
     watchList = () => {
@@ -286,12 +293,25 @@ class MovieView extends React.Component {
 }
 
 function FavouriteButton(props) {
-    return (
-        <button className="FavouriteButton btn"
-            onClick={props.onClick}>
-            {"Favourite"}
-        </button>
-    );
+    if(props.value)
+    {
+        return (
+            <button className="FavouriteButton btn"
+                onClick={props.onClick}>
+                {"Favourite"}
+            </button>
+        );
+    }
+    else
+    {
+        return (
+            <button className="NegativeFavouriteButton btn"
+                onClick={props.onClick}>
+                {"Favourite"}
+            </button>
+        );
+    }
+    
 }
 
 function TrailerButton(props) {

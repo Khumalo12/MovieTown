@@ -104,6 +104,30 @@ p {
 	top:1px;
 }
 
+.NegativeFavouriteButton {
+	background-color:#000000 !important;
+	border-radius:6px;
+	border:1px solid #ffdd00 !important;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffdd00 !important;
+	font-family:Arial;
+	font-size:15px !important;
+	font-weight:bold !important;
+	padding:4px 20px;
+	text-decoration:none;
+}
+
+.NegativeFavouriteButton:hover {
+	background:linear-gradient(to bottom, #000000 5%, #000000 100%);
+	background-color:#000000;
+}
+
+.NegativeFavouriteButton:active {
+	position:relative;
+	top:1px;
+}
+
 .TrailerButton {
 	background-color:#000000 !important;
 	border-radius:6px;
@@ -178,4 +202,14 @@ p {
 
 .WatchListViewButton:focus {
 	outline: none !important;
-}        
+}
+
+.NotFound {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 270px;
+  height: 30px;
+  background: #000000;
+}
