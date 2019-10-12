@@ -285,21 +285,25 @@ class MovieView extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    if (result.results > 0) {
+                    if (result.results.length > 0) {
                         for (let index = 0; index < result.results.length; index++) {
                             if (result.results[index].type === "Trailer") {
                                 this.setState({
                                     youtubekey: result.results[index].key,
-                                })
+                                });
                                 break;
                             }
                         }
                     }
+                    else
+                    {
+                        this.setState({
+                            youtubekey: "",
+                        })
+                    }
                 },
                 (error) => {
-                    this.setState({
-                        error
-                    });
+                    console.log(error);
                 }
             )
     }
@@ -328,9 +332,7 @@ class MovieView extends React.Component {
                     });
                 },
                 (error) => {
-                    this.setState({
-                        error
-                    });
+                    console.log(error);
                 }
             )
     }
@@ -357,9 +359,7 @@ class MovieView extends React.Component {
                     });
                 },
                 (error) => {
-                    this.setState({
-                        error
-                    });
+                    console.log(error);
                 }
             )
     }
