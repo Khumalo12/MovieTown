@@ -27,10 +27,13 @@ class MovieView extends React.Component {
         this.state = {
             searchValue: '',
             isWatchList: false,
-            searchpages: 0,
+            searchpages: 1,
             currentsearchpage: 0,
+            previouspage: 1,
+            nextpage: 2,
             youtubekey: "",
             isOpen: false,
+            enablePagination: false,
             genres: [],
             items: [],
             watchList: [],
@@ -73,6 +76,7 @@ class MovieView extends React.Component {
                         </table>
                     </div>
                 </div>
+                {this.renderPagination()}
                 <div>
                     <ModalVideo channel='youtube' isOpen={this.state.isOpen} videoId={this.state.youtubekey} onClose={() => this.setState({ isOpen: false })} />
                 </div>
@@ -119,7 +123,7 @@ class MovieView extends React.Component {
         else {
             return (
                 <div className="NotFound">
-                    <p>Oops that movie does not exist</p>
+                    <p>Oops! that movie does not exist</p>
                 </div>
             )
         }
@@ -162,6 +166,44 @@ class MovieView extends React.Component {
             genres.push(this.state.genres.genres.find(({ id }) => id === element).name + "\n");
         });
         return genres;
+    }
+
+    renderPagination() {
+        if(this.state.enablePagination)
+        {
+            let items = [];
+            for (let index = 1; index <= this.state.searchpages; index++) {
+                items.push(
+                    <li key={index} className="page-item">
+                        <button className="page-link" onClick={() => this.handlePager(index)}>{index}</button>
+                    </li>
+                );
+            }
+            return (
+                <div>
+                    <nav aria-label="Page navigation">
+                        <ul className="pagination justify-content-center">
+                            <li className="page-item"><button className="page-link" onClick={() => this.handlePager(this.state.previouspage)}>Previous</button></li>
+                            {items}
+                            <li className="page-item"><button className="page-link" onClick={() => this.handlePager(this.state.nextpage)}>Next</button></li>
+                        </ul>
+                    </nav>
+                </div>
+            )
+        }
+    }
+
+    handlePager(pageNumber) {
+        if(pageNumber === 0)
+        {
+            return;
+        }
+        this.setState({
+            previouspage: pageNumber - 1,
+            currentsearchpage: pageNumber,
+            nextpage: pageNumber + 1
+        }, () =>
+            this.searchMovie());
     }
 
     handleChange(event) {
@@ -243,12 +285,14 @@ class MovieView extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    for (let index = 0; index < result.results.length; index++) {
-                        if (result.results[index].type === "Trailer") {
-                            this.setState({
-                                youtubekey: result.results[index].key,
-                            })
-                            break;
+                    if (result.results > 0) {
+                        for (let index = 0; index < result.results.length; index++) {
+                            if (result.results[index].type === "Trailer") {
+                                this.setState({
+                                    youtubekey: result.results[index].key,
+                                })
+                                break;
+                            }
                         }
                     }
                 },
@@ -263,6 +307,7 @@ class MovieView extends React.Component {
     watchList = () => {
         this.setState({
             items: this.state.watchList,
+            enablePagination: false,
         })
     }
 
@@ -279,6 +324,7 @@ class MovieView extends React.Component {
                 (result) => {
                     this.setState({
                         items: result.results,
+                        enablePagination: false,
                     });
                 },
                 (error) => {
@@ -291,12 +337,15 @@ class MovieView extends React.Component {
 
     search = () => {
         if (this.state.searchValue && this.state.searchValue !== "") {
-            this.searchMovie();
+            this.setState({
+                currentsearchpage: 1
+            }, () =>
+                this.searchMovie());
         }
     }
 
     searchMovie = () => {
-        fetch(base_url + "search/movie?api_key=" + api_key + "&query=" + this.state.searchValue)
+        fetch(base_url + "search/movie?api_key=" + api_key + "&query=" + this.state.searchValue + "&page=" + this.state.currentsearchpage)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -304,7 +353,7 @@ class MovieView extends React.Component {
                     this.setState({
                         items: data,
                         searchpages: result.total_pages,
-                        currentsearchpage: result.page,
+                        enablePagination: true,
                     });
                 },
                 (error) => {
