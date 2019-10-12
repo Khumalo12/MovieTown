@@ -172,7 +172,13 @@ class MovieView extends React.Component {
         if(this.state.enablePagination)
         {
             let items = [];
-            for (let index = 1; index <= 10; index++) {
+            let maxPage = 10;
+            if(this.state.searchpages < 10)
+            {
+                maxPage = this.state.searchpages;
+            }
+
+            for (let index = 1; index <= maxPage; index++) {
                 items.push(
                     <li key={index} className="page-item">
                         <button className="page-link" onClick={() => this.handlePager(index)}>{index}</button>
