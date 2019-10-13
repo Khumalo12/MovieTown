@@ -145,19 +145,14 @@ class MovieView extends React.Component {
     }
 
     renderAddToWatchButton(i) {
-        return (
-            <AddToWatchButton
-                value={this.state.items[i]}
-                onClick={() => this.handleAddWatchList(i)} />
-        );
-    }
-
-    renderDeleteToWatchButton(i) {
-        return (
-            <DeleteToWatchButton
-                value={this.state.watchList[i]}
-                onClick={() => this.handleDeleteWatchList(i)} />
-        );
+        if(!this.state.isWatchList)
+        {
+            return (
+                <AddToWatchButton
+                    value={this.state.items[i]}
+                    onClick={() => this.handleAddWatchList(i)} />
+            );
+        }
     }
 
     renderGenre(genre_ids) {
@@ -316,6 +311,7 @@ class MovieView extends React.Component {
 
     watchList = () => {
         this.setState({
+            isWatchList: true,
             items: this.state.watchList,
             enablePagination: false,
         })
@@ -359,6 +355,7 @@ class MovieView extends React.Component {
                 (result) => {
                     let data = result.results.map(obj => ({ ...obj, isFavourite: false }))
                     this.setState({
+                        isWatchList: false,
                         items: data,
                         searchpages: result.total_pages,
                         enablePagination: true,
@@ -376,7 +373,7 @@ function FavouriteButton(props) {
         return (
             <button className="FavouriteButton btn"
                 onClick={props.onClick}>
-                {"Favourite"}
+                <i className="fa fa-star"></i>
             </button>
         );
     }
@@ -384,7 +381,7 @@ function FavouriteButton(props) {
         return (
             <button className="NegativeFavouriteButton btn"
                 onClick={props.onClick}>
-                {"Favourite"}
+                <i className="fa fa-star-o"></i>
             </button>
         );
     }
@@ -413,7 +410,7 @@ function DeleteToWatchButton(props) {
     return (
         <button
             onClick={props.onClick}>
-            {"Remove"}
+            {"Remove from Watch List"}
         </button>
     );
 }
